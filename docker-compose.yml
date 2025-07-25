@@ -1,0 +1,14 @@
+services:
+  open-meteo-visualizer:
+    container_name: open-meteo-visualizer
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 3000:3000
+    networks:
+      - my_network
+
+networks:
+  my_network:

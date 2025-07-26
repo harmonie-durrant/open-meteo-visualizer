@@ -17,6 +17,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         cz-shortcut-listen="true"
+        className="min-h-screen flex flex-col bg-gray-100 text-gray-900"
       >
         {children}
         <Footer />

@@ -1,5 +1,5 @@
 "use client"
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, useRef, useEffect } from 'react';
 
 type geolocationResult = {
   id: number;
@@ -27,6 +27,22 @@ type geolocationResult = {
 export default function SearchBar() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  // Handle clicking outside of the search container
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -41,16 +57,21 @@ export default function SearchBar() {
         throw new Error('No results list found');
       }
       if (data.results.length === 0) {
-        throw new Error('No results found for search query: ' + searchQuery);
+        setSearchResults([]);
+        setIsDropdownOpen(false);
+        return;
       }
       setSearchResults(data.results);
+      setIsDropdownOpen(true);
     } catch (error) {
       console.error('Error searching for location:', error);
+      setSearchResults([]);
+      setIsDropdownOpen(false);
     }
   };
 
   return (
-    <div className="relative flex items-center w-full max-w-md">
+    <div ref={searchContainerRef} className="relative flex items-center w-full max-w-md">
       <form onSubmit={handleSubmit} className="flex items-center w-full">   
           <label htmlFor="city-search" className="sr-only">Search</label>
           <div className="relative w-full">
@@ -66,6 +87,7 @@ export default function SearchBar() {
                   placeholder="Search for a city..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setIsDropdownOpen(true)}
                   required
                   />
           </div>
@@ -76,8 +98,9 @@ export default function SearchBar() {
               <span className="sr-only">Search</span>
           </button>
       </form>
-      <ul className='absolute top-11 z-10 w-full max-w-md bg-white border border-gray-300 rounded-lg shadow-lg text-black'>
-        {searchResults.map((result: geolocationResult) => (
+      {isDropdownOpen && searchResults.length > 0 && (
+        <ul className='absolute top-11 z-10 w-full max-h-60 overflow-y-scroll max-w-md bg-white border border-gray-300 rounded-lg shadow-lg text-black'>
+          {searchResults.map((result: geolocationResult) => (
           <li key={result.id} className="p-4 hover:bg-gray-100 flex items-center justify-between rounded-lg">
             {/* Country flag */}
             <div>
@@ -96,7 +119,7 @@ export default function SearchBar() {
               rel="noopener noreferrer"
               className="inline-block h-4 me-2 text-blue-500"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"></path>
                 <path d="M15 5.764v15"></path>
                 <path d="M9 3.236v15"></path>
@@ -104,7 +127,8 @@ export default function SearchBar() {
             </a>
           </li>
         ))}
-      </ul>
+        </ul>
+      )}
     </div>
   );
 }

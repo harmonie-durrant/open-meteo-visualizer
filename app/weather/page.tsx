@@ -1,5 +1,6 @@
 "use client";
 import SearchBar from "@/components/SearchBar";
+import WeatherCard from "@/components/WeatherCard";
 import { openWeatherWMOToEmoji } from '@akaguny/open-meteo-wmo-to-emoji';
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
@@ -12,6 +13,8 @@ type WeatherResult = {
     wind_gusts_10m_max: number[];
     temperature_2m_max: number[];
     temperature_2m_min: number[];
+    sunrise: string[];
+    sunset: string[];
   };
 };
 
@@ -21,6 +24,8 @@ function WeatherContent() {
   const searchParams = useSearchParams();
   const longitude = searchParams.get("longitude");
   const latitude = searchParams.get("latitude");
+
+  const [targetSunMoonDate, setTargetSunMoonDate] = useState(new Date());
 
   useEffect(() => {
     if (!longitude || !latitude) {
@@ -38,7 +43,7 @@ function WeatherContent() {
 
   const getWeatherResults = async (longitude: string, latitude: string) => {
     try {
-      const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}&daily=weather_code,precipitation_probability_max,uv_index_max,wind_gusts_10m_max,temperature_2m_max,temperature_2m_min&timezone=Europe%2FBerlin`); //TODO: Dynamic timezone
+      const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}&daily=weather_code,precipitation_probability_max,uv_index_max,wind_gusts_10m_max,temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=Europe%2FBerlin`); //TODO: Dynamic timezone
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.error || 'Failed to fetch weather data');
@@ -57,14 +62,11 @@ function WeatherContent() {
         <p className="text-lg text-gray-200 mb-10 text-center">Visualize weather data from the Open Meteo API.</p>
         <SearchBar />
       </div>
-      <section className="py-12">
+      <section className="py-12 flex items-center justify-center flex-wrap">
         {
           weatherResults ? (
-            <div className="w-full flex flex-col items-center justify-center">
-              <div className="w-full max-w-xl mx-2 p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:p-8">
-                <div className="flex items-center mb-4">
-                  <h5 className="text-xl font-bold leading-none">7 day forecast</h5>
-                </div>
+            <>
+              <WeatherCard title="7 Day Forecast">
                 <div className="flow-root">
                   <ul role="list" className="divide-y divide-gray-200">
                     {
@@ -118,8 +120,72 @@ function WeatherContent() {
                     }
                   </ul>
                 </div>
-              </div>
-            </div>
+              </WeatherCard>
+              <WeatherCard title="Sun & Moon">
+                <ul className="flex flex-wrap items-center justify-center text-sm font-medium text-center text-gray-500 border-b border-gray-200" id="defaultTab" data-tabs-toggle="#defaultTabContent" role="tablist">
+                  {
+                    Array.from({ length: 7 }, (_, i) => {
+                      const targetDate = new Date(Date.now() + i * 86400000);
+                      const isSameDay = targetSunMoonDate.toDateString() === targetDate.toDateString();
+                      return (
+                        <li key={i} className="me-4">
+                          <button id="about-tab" onClick={() => setTargetSunMoonDate(targetDate)} className={`inline-block p-4 ${(isSameDay) ? "text-blue-600" : "text-gray-500"} ${(isSameDay) ? "bg-gray-200" : ""} rounded-t-lg hover:bg-gray-100`}>
+                            {
+                              (i == 0) ? "Today" : (i == 1) ? "Tommorow" : targetDate.toLocaleDateString("en", { weekday: 'long' })
+                            }
+                          </button>
+                        </li>
+                      )
+                    })
+                  }
+                </ul>
+                <div className="flow-root">
+                  <ul role="list" className="divide-y divide-gray-200">
+                    {
+                      weatherResults.daily.sunrise.map((_, index) => {
+                        const targetDate = new Date(Date.now() + index * 86400000);
+                        if (targetDate.toDateString() !== targetSunMoonDate.toDateString()) {
+                          return null;
+                        }
+
+                        const sunrise = new Date(weatherResults.daily.sunrise[index]);
+                        const sunset = new Date(weatherResults.daily.sunset[index]);
+
+                        const hoursOfSun = Math.floor((sunset.getTime() - sunrise.getTime()) / 3600000);
+                        const remainingMinutes = Math.floor(((sunset.getTime() - sunrise.getTime()) % 3600000) / 60000);
+
+                        return (
+                          <div key={index}>
+                            <li className="py-3 sm:py-4">
+                              <div className="flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" className="bi bi-sun" viewBox="0 0 16 16">
+                                  <path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6m0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8M8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0m0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13m8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5M3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8m10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0m-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0m9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707M4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708"/>
+                                </svg>
+                                <div className="flex flex-1 items-center justify-start min-w-0 gap-2 ml-8">
+                                  <p className="text-2xl font-semibold">
+                                    {hoursOfSun}h {remainingMinutes}m
+                                  </p>
+                                </div>
+                                {/* Divider */}
+                                <div className="border-l border-gray-300 h-8 mx-4"></div>
+                                <div className="w-16">
+                                  <p className="text-sm text-center text-gray-500">Sunrise</p>
+                                  <p className="text-sm text-center text-gray-500">Sunset</p>
+                                </div>
+                                <div>
+                                  <p className="text-md text-center font-semibold">{sunrise.toLocaleTimeString("en", { hour: "2-digit", minute: "2-digit", hour12: false })}</p>
+                                  <p className="text-md text-center font-semibold">{sunset.toLocaleTimeString("en", { hour: "2-digit", minute: "2-digit", hour12: false })}</p>
+                                </div>
+                              </div>
+                            </li>
+                          </div>
+                        );
+                      })
+                    }
+                  </ul>
+                </div>
+              </WeatherCard>
+            </>
           ) : (
             <p className="text-center text-gray-500">Loading weather data...</p>
           )

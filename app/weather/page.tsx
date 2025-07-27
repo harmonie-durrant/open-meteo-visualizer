@@ -121,7 +121,7 @@ function WeatherContent() {
                   </ul>
                 </div>
               </WeatherCard>
-              <WeatherCard title="Sun & Moon">
+              <WeatherCard title="Sunrise & Sunset">
                 <ul className="flex flex-wrap items-center justify-center text-sm font-medium text-center text-gray-500 border-b border-gray-200" id="defaultTab" data-tabs-toggle="#defaultTabContent" role="tablist">
                   {
                     Array.from({ length: 7 }, (_, i) => {

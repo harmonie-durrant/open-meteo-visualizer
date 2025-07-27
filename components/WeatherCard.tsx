@@ -1,3 +1,5 @@
+import React from "react";
+
 export default function WeatherCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-wrap items-center justify-center">

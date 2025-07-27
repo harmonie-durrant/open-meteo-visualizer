@@ -1,5 +1,7 @@
 # 🌤️ Open Météo Interactive Weather Forecast
 
+<img alt="Open Météo Visualizer Banner" src="/screenshots/readme-banner.png" />
+
 ## Project Description
 
 This project is an interactive web-based dashboard designed to visualize historical and current weather data for various locations around the globe. Leveraging the Open-Meteo API, users can explore temperature trends, precipitation, wind speed, and more through intuitive and dynamic charts. The dashboard aims to provide a clear, engaging, and responsive interface for meteorological data analysis, showcasing strong front-end development skills, API integration, and data visualization capabilities.

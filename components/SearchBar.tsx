@@ -103,7 +103,9 @@ export default function SearchBar() {
           {searchResults.map((result: geolocationResult) => (
           <li key={result.id} className="p-4 hover:bg-gray-100 flex items-center justify-between rounded-lg">
             {/* Country flag */}
-            <div>
+            <a
+              href={`/weather?latitude=${result.latitude}&longitude=${result.longitude}`}
+            >
               <img
                 src={`https://flagcdn.com/w20/${result.country_code.toLowerCase()}.png`}
                 alt={`${result.country} flag`}
@@ -111,7 +113,7 @@ export default function SearchBar() {
               />
               {/* City Name */}
               <span className="font-semibold">{result.name}</span>
-            </div>
+            </a>
             {/* Map Icon (Links to OpenStreetMap) */}
             <a
               href={`https://www.openstreetmap.org/#map=13/${result.latitude}/${result.longitude}`}

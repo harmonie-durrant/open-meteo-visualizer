@@ -109,7 +109,7 @@ export default function SearchBar() {
               <img
                 src={`https://flagcdn.com/w20/${result.country_code.toLowerCase()}.png`}
                 alt={`${result.country} flag`}
-                className="inline-block w-6 h-4 me-2"
+                className="inline-block w-6 h-4 mr-2"
               />
               {/* City Name */}
               <span className="font-semibold">{result.name}</span>
@@ -119,7 +119,7 @@ export default function SearchBar() {
               href={`https://www.openstreetmap.org/#map=13/${result.latitude}/${result.longitude}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block h-4 me-2 text-blue-500"
+              className="inline-block h-4 mr-2 text-blue-500"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"></path>

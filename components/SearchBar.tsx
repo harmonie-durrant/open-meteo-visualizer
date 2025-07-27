@@ -86,7 +86,10 @@ export default function SearchBar() {
                   id="city-search"
                   placeholder="Search for a city..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    searchQuery.length >= 2 ? handleSubmit(e) : null;
+                  }}
                   onFocus={() => setIsDropdownOpen(true)}
                   required
                   />
@@ -101,34 +104,35 @@ export default function SearchBar() {
       {isDropdownOpen && searchResults.length > 0 && (
         <ul className='absolute top-11 z-10 w-full max-h-60 overflow-y-scroll max-w-md bg-white border border-gray-300 rounded-lg shadow-lg text-black'>
           {searchResults.map((result: geolocationResult) => (
-          <li key={result.id} className="p-4 hover:bg-gray-100 flex items-center justify-between rounded-lg">
-            {/* Country flag */}
             <a
+              key={result.id}
               href={`/weather?latitude=${result.latitude}&longitude=${result.longitude}`}
             >
-              <img
-                src={`https://flagcdn.com/w20/${result.country_code.toLowerCase()}.png`}
-                alt={`${result.country} flag`}
-                className="inline-block w-6 h-4 mr-2"
-              />
-              {/* City Name */}
-              <span className="font-semibold">{result.name}</span>
+              <li key={result.id} className="p-4 hover:bg-gray-100 flex items-center justify-between rounded-lg">
+                <div>
+                  <img
+                    src={`https://flagcdn.com/w20/${result.country_code.toLowerCase()}.png`}
+                    alt={`${result.country} flag`}
+                    className="inline-block w-6 h-4 mr-2"
+                  />
+                  <span className="font-semibold">{result.name}</span>
+                </div>
+                <button
+                  className="flex items-center justify-center h-8 w-8 rounded-md mr-2 text-blue-500 hover:cursor-pointer hover:bg-blue-200 hover-text-blue-700"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.open(`https://www.openstreetmap.org/#map=13/${result.latitude}/${result.longitude}`, '_blank');
+                  }}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"></path>
+                    <path d="M15 5.764v15"></path>
+                    <path d="M9 3.236v15"></path>
+                  </svg>
+                </button>
+              </li>
             </a>
-            {/* Map Icon (Links to OpenStreetMap) */}
-            <a
-              href={`https://www.openstreetmap.org/#map=13/${result.latitude}/${result.longitude}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block h-4 mr-2 text-blue-500"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"></path>
-                <path d="M15 5.764v15"></path>
-                <path d="M9 3.236v15"></path>
-              </svg>
-            </a>
-          </li>
-        ))}
+          ))}
         </ul>
       )}
     </div>

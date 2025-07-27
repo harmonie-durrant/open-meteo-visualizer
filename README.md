@@ -61,4 +61,6 @@ This project utilizes the Open-Meteo API to fetch weather data. It's a free and 
 
 ## Screenshots
 
-Soon
+<img alt="Home Page" src="/screenshots/home-page-v1.png" />
+
+<img alt="Weather Page" src="/screenshots/weather-page-v1.png" />

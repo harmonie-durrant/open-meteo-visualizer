@@ -81,21 +81,14 @@ function WeatherContent() {
                                 <p className="text-3xl">
                                   {openWeatherWMOToEmoji(code).value}
                                 </p>
-                                <p className="text-md">
-                                  {openWeatherWMOToEmoji(code).description}
+                                <p className="text-xl font-extrabold">
+                                  {weatherResults.daily.temperature_2m_max[index]}°<small>C</small>
+                                </p>
+                                <p className="text-md text-gray-500 font-semibold">
+                                  {weatherResults.daily.temperature_2m_min[index]}°<small>C</small>
                                 </p>
                               </div>
-                              <div className="flex items-center gap-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-thermometer-half" viewBox="0 0 16 16">
-                                  <path d="M9.5 12.5a1.5 1.5 0 1 1-2-1.415V6.5a.5.5 0 0 1 1 0v4.585a1.5 1.5 0 0 1 1 1.415"/>
-                                  <path d="M5.5 2.5a2.5 2.5 0 0 1 5 0v7.55a3.5 3.5 0 1 1-5 0zM8 1a1.5 1.5 0 0 0-1.5 1.5v7.987l-.167.15a2.5 2.5 0 1 0 3.333 0l-.166-.15V2.5A1.5 1.5 0 0 0 8 1"/>
-                                </svg>
-                                <div className="flex flex-col items-center gap-1">
-                                  <span className="font-bold">max: {weatherResults.daily.temperature_2m_max[index]}°C</span>
-                                  <span className="font-bold">min: {weatherResults.daily.temperature_2m_min[index]}°C</span>
-                                </div>
-                              </div>
-                              <div className="flex flex-col items-center gap-1">
+                              <div className="hidden md:flex flex-col items-center gap-1">
                                 <div className="flex items-center gap-2">
                                   <div className="flex items-center gap-1">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-droplet" viewBox="0 0 16 16">

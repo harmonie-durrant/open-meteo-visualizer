@@ -18,9 +18,29 @@ type WeatherResult = {
   };
 };
 
+type HourlyWeatherResult = {
+    "latitude": number,
+    "longitude": number,
+    "generationtime_ms": number,
+    "utc_offset_seconds": number,
+    "timezone": string,
+    "timezone_abbreviation": string,
+    "elevation": number,
+    "hourly_units": {
+        "time": string,
+        "weather_code": string,
+        "temperature_2m": string
+    },
+    "hourly": {
+        "time": string[],
+        "weather_code": number[],
+        "temperature_2m": number[]
+    }
+}
 
 function WeatherContent() {
   const [weatherResults, setWeatherResults] = useState<WeatherResult | null>(null);
+  const [hourlyWeatherResults, setHourlyWeatherResults] = useState<HourlyWeatherResult | null>(null);
   const searchParams = useSearchParams();
   const longitude = searchParams.get("longitude");
   const latitude = searchParams.get("latitude");
@@ -53,6 +73,17 @@ function WeatherContent() {
       console.error("Error fetching weather data:", error);
       //TODO Handle error (e.g., show notification)
     }
+    
+    try {
+      const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&hourly=weather_code,temperature_2m&forecast_days=1&timezone=Europe%2FBerlin`); //TODO: Dynamic timezone
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch weather data');
+      }
+      setHourlyWeatherResults(data);
+    } catch (error) {
+      console.error("Error Hourly forecast: ", error);
+    }
   };
 
   return (
@@ -62,7 +93,55 @@ function WeatherContent() {
         <p className="text-lg text-gray-200 mb-10 text-center">Visualize weather data from the Open Meteo API.</p>
         <SearchBar />
       </div>
-      <section className="py-12 flex items-center justify-center flex-wrap">
+      <section className="w-full pt-12">
+        {
+          hourlyWeatherResults ? (
+            <WeatherCard title="Hourly Forecast" fullWidth={true}>
+              <div className="overflow-x-auto">
+                <ul
+                  role="list"
+                  className="flex divide-x divide-gray-200 whitespace-nowrap w-full justify-center items-center"
+                >
+                  {hourlyWeatherResults.hourly.time.map((time, index) => {
+                    const now = new Date();
+                    const timeToCheck = new Date(time);
+                    var isCurrentHour = false;
+                    if (timeToCheck < now) {
+                      isCurrentHour = (now.getHours() - timeToCheck.getHours()) < 1;
+                    }
+                    return (
+                      <li
+                        key={index}
+                        className={`px-4 py-3 sm:py-4 flex-shrink-0 flex flex-col items-center text-center ${isCurrentHour ? "bg-blue-100" : ""}`}
+                      >
+                        <p className="font-semibold">
+                          {new Date(time).toLocaleTimeString("en", {
+                            hour: "numeric",
+                            minute: "numeric",
+                          })}
+                        </p>
+                        <div className="flex flex-col items-center mt-2">
+                          <p className="text-3xl">
+                            {
+                              openWeatherWMOToEmoji(
+                                hourlyWeatherResults.hourly.weather_code[index]
+                              ).value
+                            }
+                          </p>
+                          <p className="text-xl font-extrabold">
+                            {hourlyWeatherResults.hourly.temperature_2m[index]}°<small>C</small>
+                          </p>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            </WeatherCard>
+          ) : (<></>)
+        }
+        </section>
+        <section className="py-12 flex items-center justify-center flex-wrap">
         {
           weatherResults ? (
             <>

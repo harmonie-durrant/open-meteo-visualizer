@@ -1,4 +1,5 @@
 "use client";
+import { addNotification } from "@/components/Notifications";
 import SearchBar from "@/components/SearchBar";
 import WeatherCard from "@/components/WeatherCard";
 import { openWeatherWMOToEmoji } from '@akaguny/open-meteo-wmo-to-emoji';
@@ -70,19 +71,24 @@ function WeatherContent() {
       }
       setWeatherResults(data);
     } catch (error) {
-      console.error("Error fetching weather data:", error);
-      //TODO Handle error (e.g., show notification)
+      addNotification({
+        type: "error",
+        message: `${error}`,
+      });
     }
     
     try {
       const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&hourly=weather_code,temperature_2m&forecast_days=1&timezone=Europe%2FBerlin`); //TODO: Dynamic timezone
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch weather data');
+        throw new Error(data.error || 'Failed to fetch hourly data');
       }
       setHourlyWeatherResults(data);
     } catch (error) {
-      console.error("Error Hourly forecast: ", error);
+      addNotification({
+        type: "error",
+        message: `${error}`,
+      });
     }
   };
 

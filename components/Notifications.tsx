@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 type NotificationListing = {
   type: string;
@@ -8,23 +8,23 @@ type NotificationListing = {
   timeoutRef?: NodeJS.Timeout;
 }
 
+const notifications: NotificationListing[] = []
+
+export const addNotification = (notification: NotificationListing) => {
+  if (notification.timeoutRef) {
+    clearTimeout(notification.timeoutRef);
+  }
+  notification.timeoutRef = setTimeout(() => {
+    removeNotification(notifications.indexOf(notification));
+  }, 5000); // Remove notification after 5 seconds
+  notifications.push(notification);
+};
+
+const removeNotification = (index: number) => {
+  notifications.splice(index, 1);
+};
+
 export default function Notifications() {
-  const [notifications, setNotifications] = useState([] as NotificationListing[]);
-
-  const addNotification = (notification: NotificationListing) => {
-    if (notification.timeoutRef) {
-      clearTimeout(notification.timeoutRef);
-    }
-    notification.timeoutRef = setTimeout(() => {
-      removeNotification(notifications.indexOf(notification));
-    }, 5000); // Remove notification after 5 seconds
-    setNotifications((prev) => [...prev, notification]);
-  };
-
-  const removeNotification = (index: number) => {
-    setNotifications((prev) => prev.filter((_, i) => i !== index));
-  };
-
   const clearTimeouts = () => {
     notifications.forEach((notification) => {
       if (notification.timeoutRef) {
